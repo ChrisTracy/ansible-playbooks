@@ -8,9 +8,10 @@
 
   tasks:
     - name: Check disk space on root partition
-      ansible.builtin.shell: df / | awk '/\// {print $5}' | sed 's/%//g'
+      ansible.builtin.command: df --output=pcent / | tail -n 1 | tr -d '%'
       register: disk_usage
       changed_when: false
+
 
     - name: Debug disk usage
       ansible.builtin.debug:
