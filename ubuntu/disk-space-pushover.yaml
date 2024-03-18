@@ -1,0 +1,30 @@
+---
+- name: Check Disk Space and Alert via Pushover
+  hosts: "{{ target_hosts }}"
+  vars:
+    pushover_token: "{{ pushover_token }}"
+    pushover_user: "{{ pushover_user }}"
+    threshold: "{{ threshold }}"
+
+  tasks:
+    - name: Check disk space on root partition
+      ansible.builtin.shell: df / | awk '/\// {print $5}' | sed 's/%//g'
+      register: disk_usage
+      changed_when: false
+
+    - name: Debug disk usage
+      ansible.builtin.debug:
+        msg: "Disk usage is {{ disk_usage.stdout }}%"
+
+    - name: Send Pushover alert if disk usage exceeds threshold
+      ansible.builtin.uri:
+        url: "https://api.pushover.net/1/messages.json"
+        method: POST
+        body: 
+          token: "{{ pushover_token }}"
+          user: "{{ pushover_user }}"
+          message: "Warning: Disk space on {{ inventory_hostname }} is above {{ threshold }}% - Current: {{ disk_usage.stdout }}%"
+          title: "Disk Space Alert"
+        body_format: form-urlencoded
+        status_code: 200
+      when: disk_usage.stdout | int > threshold
