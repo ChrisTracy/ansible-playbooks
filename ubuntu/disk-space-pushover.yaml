@@ -17,6 +17,16 @@
       ansible.builtin.debug:
         msg: "Disk usage is {{ disk_usage.stdout }}%"
 
+    - name: Get raw disk space usage output
+      ansible.builtin.command: df --output=pcent /
+      register: df_output
+      changed_when: false
+
+    - name: Debug df output
+      ansible.builtin.debug:
+      var: df_output.stdout_lines
+
+
     - name: Send Pushover alert if disk usage exceeds threshold
       ansible.builtin.uri:
         url: "https://api.pushover.net/1/messages.json"
