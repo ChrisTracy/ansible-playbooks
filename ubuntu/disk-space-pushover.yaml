@@ -27,4 +27,4 @@
           title: "Disk Space Alert"
         body_format: form-urlencoded
         status_code: 200
-      when: disk_usage.stdout | int > threshold
+      when: disk_usage.stdout | int > threshold | int
