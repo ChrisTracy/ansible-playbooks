@@ -11,7 +11,18 @@
   tasks:
     - name: Find private or Tailscale IP address
       set_fact:
-        private_ip: "{{ ansible_all_ipv4_addresses | select('search', preferred_networks) | first }}"
+        private_ip: "{{ item }}"
+      loop: "{{ ansible_all_ipv4_addresses }}"
+      when: >
+        item.startswith('10.') or 
+        item.startswith('172.16.') or 
+        item.startswith('192.168.') or 
+        item.startswith('100.64.')
+      loop_control:
+        extended: true
+      until: private_ip is defined or ansible_loop.last
+      check_mode: no
+      ignore_errors: true
 
     - name: Fail if no private or Tailscale IP is found
       fail:
