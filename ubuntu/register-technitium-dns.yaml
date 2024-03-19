@@ -12,8 +12,6 @@
     - name: Find private or Tailscale IP address
       set_fact:
         private_ip: "{{ ansible_all_ipv4_addresses | select('search', preferred_networks) | first }}"
-      vars:
-        preferred_networks: "{{ preferred_networks }}"
 
     - name: Fail if no private or Tailscale IP is found
       fail:
