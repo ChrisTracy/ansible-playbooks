@@ -40,7 +40,7 @@
           zone: "{{ zone }}"
           name: "{{ ansible_hostname }}"
           type: "A"
-          address: "{{ private_ip }}"
+          ipAddress: "{{ private_ip }}"
         status_code: 200
       register: dns_api_response
 
