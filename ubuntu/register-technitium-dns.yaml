@@ -36,11 +36,11 @@
         body_format: form-urlencoded
         body:
           token: "{{ token }}"
-          domain: "{{ domain }}"
+          domain: "{{ ansible_hostname }}"
           zone: "{{ zone }}"
-          name: "{{ ansible_hostname }}"
           type: "A"
           ipAddress: "{{ private_ip }}"
+          overwrite: "true"
         status_code: 200
       register: dns_api_response
 
