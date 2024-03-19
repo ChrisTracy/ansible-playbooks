@@ -1,6 +1,6 @@
 ---
 - name: Add A Record to Technitium DNS for Private or Tailscale IP
-  hosts: localhost
+  hosts: "{{ target_hosts }}"
   gather_facts: yes
   vars:
     preferred_networks:
