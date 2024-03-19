@@ -38,9 +38,9 @@
           token: "{{ token }}"
           domain: "{{ ansible_hostname }}.{{ domain }}"
           zone: "{{ zone }}"
-          name: "{{ ansible_hostname }}"
           type: "A"
           ipAddress: "{{ private_ip }}"
+          overide: "true"
         status_code: 200
       register: dns_api_response
 
