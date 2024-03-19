@@ -1,0 +1,40 @@
+---
+- name: Add A Record to Technitium DNS for Private or Tailscale IP
+  hosts: localhost
+  gather_facts: yes
+  vars:
+    preferred_networks:
+      - "10."
+      - "172.16."
+      - "192.168."
+      - "100.64." # Tailscale network
+  tasks:
+    - name: Find private or Tailscale IP address
+      set_fact:
+        private_ip: "{{ ansible_all_ipv4_addresses | select('search', preferred_networks) | first }}"
+      vars:
+        preferred_networks: "{{ preferred_networks }}"
+
+    - name: Fail if no private or Tailscale IP is found
+      fail:
+        msg: "No private or Tailscale IP found."
+      when: private_ip is not defined
+
+    - name: Add A record to Technitium DNS
+      uri:
+        url: "{{ endpoint }}/api/zones/records/add"
+        method: POST
+        body_format: form-urlencoded
+        body:
+          token: "{{ token }}"
+          domain: "{{ domain }}"
+          zone: "{{ zone }}"
+          name: "{{ ansible_hostname }}"
+          type: "A"
+          address: "{{ private_ip }}"
+        status_code: 200
+      register: dns_api_response
+
+    - name: Debug response from Technitium DNS API
+      debug:
+        var: dns_api_response
