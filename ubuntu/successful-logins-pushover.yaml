@@ -2,6 +2,7 @@
 - name: Gather successful login events and notify via Pushover
   hosts: "{{ target_hosts }}"
   gather_facts: no
+  become: true
 
   vars:
     pushover_user_key: "{{ pushover_user }}"
