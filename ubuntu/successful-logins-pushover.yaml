@@ -9,12 +9,13 @@
 
   tasks:
     - name: Get successful login events from the past 24 hours from /var/log/auth.log
-      ansible.builtin.shell: >
-        grep 'sshd.*Accepted' /var/log/auth.log |
-        awk '/Accepted/ {print $1" "$2" "$3" " User "$9" logged into "$11" at "$3}'
-      register: login_events
-      changed_when: false
-      become: yes
+    ansible.builtin.shell: >
+      grep 'sshd.*Accepted' /var/log/auth.log |
+      awk '/Accepted/ {print $1" "$2" "$3" " User "$9" logged into "$11" at "$3}'
+    register: login_events
+    changed_when: false
+    become: yes
+
 
 
     - name: Set login event message for Pushover
