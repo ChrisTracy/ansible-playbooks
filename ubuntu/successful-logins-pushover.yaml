@@ -1,0 +1,39 @@
+---
+- name: Gather successful login events and notify via Pushover
+  hosts: "{{ target_hosts }}"
+  gather_facts: no
+
+  vars:
+    pushover_user_key: "{{ pushover_user }}"
+    pushover_api_token: "{{ pushover_token }}"
+
+  tasks:
+    - name: Get successful login events from the past 24 hours
+      ansible.builtin.shell: >
+        journalctl _SYSTEMD_UNIT=sshd.service --since "24 hours ago" |
+        grep 'Accepted' |
+        awk '{print $1" "$2" "$3" "$9" logged into "$11" at "$3}'
+      register: login_events
+      changed_when: false
+
+    - name: Set login event message for Pushover
+      ansible.builtin.set_fact:
+        login_event_message: "{{ groups['all'] | map('extract', hostvars, 'login_events') | map(attribute='stdout_lines') | sum(start=[]) | join('\n') }}"
+
+    - name: Debug login event message
+      ansible.builtin.debug:
+        msg: "{{ login_event_message }}"
+
+    - name: Send login event summary via Pushover
+      local_action: 
+        module: uri
+        url: "https://api.pushover.net/1/messages.json"
+        method: POST
+        body_format: form-urlencoded
+        body:
+          token: "{{ pushover_api_token }}"
+          user: "{{ pushover_user_key }}"
+          message: "{{ login_event_message }}"
+        return_content: yes
+      run_once: true
+      when: login_event_message | length > 0
