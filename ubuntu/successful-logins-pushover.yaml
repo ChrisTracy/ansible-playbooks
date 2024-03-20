@@ -8,11 +8,10 @@
     pushover_api_token: "{{ pushover_token }}"
 
   tasks:
-    - name: Get successful login events from the past 24 hours
+    - name: Get successful login events from the past 24 hours from /var/log/auth.log
       ansible.builtin.shell: >
-        journalctl _SYSTEMD_UNIT=sshd.service --since "24 hours ago" |
-        grep 'Accepted' |
-        awk '{print $1" "$2" "$3" "$9" logged into "$11" at "$3}'
+        grep 'sshd.*Accepted' /var/log/auth.log |
+        awk '/Accepted/ {print $1" "$2" "$3" "User "$9" logged into "$11" at "$3}'
       register: login_events
       changed_when: false
 
