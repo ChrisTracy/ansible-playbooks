@@ -5,4 +5,4 @@
   tasks:
     - name: Set hostname
       ansible.builtin.hostname:
-        name: "new_hostname"
+        name: "{{ new_hostname }}"
